@@ -8,10 +8,8 @@ import { ArrowRightEndOnRectangleIcon } from '@heroicons/react/24/outline';
 export const HeroSection = () => {
 
     return (
-
-        <section className=' mx-auto container'>
-            <div className="bg-[url('/img/p10.jpg')] bg-cover">
-                <div className='bg-[#00000070]'>
+            <div className="bg-[url('/img/p10.jpg')] bg-cover w-full min-h-screen">
+                <div className='bg-[#00000070] min-h-screen'>
                     <div className='bg-[#2c160ab5]'>
                         <NavBar />
                     </div>
@@ -31,7 +29,7 @@ export const HeroSection = () => {
                             <div>
                                 <Link href='/menu'
                                     className='text-2xl flex items-center justify-center text-black font-bold shadow-xl border-4 border-black rounded-full py-3 px-10 bg-gradient-to-r  from-yellow-500 to-[#b40606f4] hover:from-amber-500 hover:to-red-600  transition-transform transform hover:scale-105 duration-300'>
-                                Today Specials
+                                Today Deals
                                 <span
                                     className='ml-3 text-xl transform transition-transform duration-300 hover:scale-110'>😉</span>
                                 </Link>
@@ -56,6 +54,6 @@ export const HeroSection = () => {
                     </div>
                 </div>
             </div>
-        </section>
+
     )
 }

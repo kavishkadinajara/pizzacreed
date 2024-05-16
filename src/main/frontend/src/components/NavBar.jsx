@@ -20,7 +20,7 @@ export default async function NavBar() {
             </Image>
             </div>
             <div className='text-3xl font-bold mt-4 text-orange-800'>
-                <span className="text-orange-600">Pizza</span>-<span className="text-orange-400">Creed</span>
+                <span className="text-orange-600">Pizza</span>-<span className="text-orange-500">Creed</span>
             </div>
         </Link>
 
@@ -28,18 +28,18 @@ export default async function NavBar() {
         
 
         {/* Navigation Links */}
-        <ul className="flex items-center space-x-8">
+        <ul className="flex items-center space-x-8 text-orange-300">
           <li>
-            <Link href="#" className="hover:text-orange-400">Home</Link>
+            <Link href="/" className="hover:text-orange-500">Home</Link>
           </li>
           <li>
-            <Link href="/Shop" className="hover:text-orange-400">Shop</Link>
+            <Link href="/menu" className="hover:text-orange-500">Menu</Link>
           </li>
           <li>
-            <Link href="/#serviceSection" className="hover:text-orange-400">Services</Link>
+            <Link href="/#service-area" className="hover:text-orange-500">Services</Link>
           </li>
           <li>
-            <Link href="/#reviewSection" className="hover:text-orange-400">Reviews</Link>
+            <Link href="/#reviewSection" className="hover:text-orange-500">Contact Us</Link>
           </li>
         </ul>
         
@@ -58,14 +58,14 @@ export default async function NavBar() {
                   <ShoppingCartIcon className='h-7 my-auto mt-2' />
                 </Link>
                  
-                <button className='bg-orange-400 py-2 px-6 rounded-lg mr-4 hover:bg-orange-500 shadow-lg hover:shadow-orange-500'><Logout/></button>
+                <button className='bg-orange-500 py-2 px-6 rounded-lg mr-4 hover:bg-orange-500 shadow-lg hover:shadow-orange-500'><Logout/></button>
               </div>
               
             </> 
           ) : (
             <>
             <div className='flex gap-4'>
-              <Link href="/Login" className="text-xl text-orange-400 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg hover:">Login</Link>
+              <Link href="/login" className="text-xl text-orange-500 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg hover:">Login</Link>
               </div>
             </>
           )}
