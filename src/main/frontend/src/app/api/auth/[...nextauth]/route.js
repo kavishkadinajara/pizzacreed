@@ -6,7 +6,7 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   pages: {
-    signIn: '/admin/pizzacreed1199/login',
+    signIn: '/login',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -17,7 +17,11 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.user = token;
+      // session.user.id = token.id;
+      // session.user.username = token.username;
+      session.user = token.user;
+      console.log("Session: " + session);
+      console.log("Token:" + token);
       return session;
     },
   },
@@ -27,29 +31,33 @@ const handler = NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
-          const res = await fetch('http://localhost:8080/api/auth/pizzacreed/adminlogin', {
+          const res = await fetch('http://localhost:8080/api/auth/pizzacreed/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: credentials?.username,
-              password: credentials?.password,
-            }),
+            body: JSON.stringify(credentials),
+            credentials: 'include',
           });
+          console.log("Res:" + res);
+          console.log("Cre:" + credentials);
 
-          const user = await res.json();
 
-          if (res.ok && user.code === '00') {
-            return {
-              id: user.id,
-              username: user.username,
+          const data = await res.json();
+
+          if (res.ok && data.code === '00') {
+            const user = {
+              id: data.content.userId,
+              username: data.content.username,
+              
             };
+            console.log(user);
+            return user;
+          } else {
+            return null;
           }
-
-          return null;
         } catch (error) {
-          console.error('Error during authorization:', error);
+          console.error('Login error:', error);
           return null;
         }
       },

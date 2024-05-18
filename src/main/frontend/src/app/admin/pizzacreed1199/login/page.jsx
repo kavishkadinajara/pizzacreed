@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { toast } from 'react-hot-toast';
 
@@ -11,36 +10,47 @@ export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    // State variables to handle login status and message
-    const [loginStatus, setLoginStatus] = useState(null);
+    // State variable to handle login message
     const [loginMessage, setLoginMessage] = useState('');
 
     async function handleLogin(e) {
         e.preventDefault();
         try {
-            const formData = new FormData(e.currentTarget);
             toast.dismiss();
             await toast.promise(
                 new Promise(async (resolve, reject) => {
-                    const response = await signIn('credentials', {
-                        username: formData.get('username'),
-                        password: formData.get('password'),
-                        redirect: false,
-                    });
+                    try {
+                        const response = await fetch('http://localhost:8080/api/auth/pizzacreed/adminlogin', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ username, password }),
+                            credentials: 'include' // Include credentials (cookies)
+                        });
 
-                    console.log({ response });
-
-                    if (!response?.error) {
-                        // Redirect user to the home page if sign-in is successful
-                        router.push('/');
-                        router.refresh();
-                        resolve(response); // Resolve the promise if sign-in is successful
-                    } else {
-                        // Reject the promise if there's an error during sign-in
-                        if (response.status == 401) {
-                            reject(new Error("Incorrect username or password"));
+                        if (response.status === 401) {
+                            setLoginMessage('Incorrect username or password');
+                            reject(new Error('Incorrect username or password'));
+                            return;
                         }
-                        reject(new Error(response.error));
+
+                        const result = await response.json();
+                        console.log({ result });
+
+                        if (response.ok && result.code === '00') {
+                            router.push('/');
+                            router.refresh();
+                            setLoginMessage('Signed in successfully!');
+                            resolve(result);
+                        } else {
+                            const errorMessage = result.message || 'Login failed';
+                            setLoginMessage(errorMessage);
+                            reject(new Error(errorMessage));
+                        }
+                    } catch (networkError) {
+                        setLoginMessage('Network error: Failed to connect to the server');
+                        reject(new Error('Network error: Failed to connect to the server'));
                     }
                 }),
                 {
@@ -55,13 +65,11 @@ export default function LoginPage() {
                 }
             );
         } catch (error) {
-            // Handle any errors that occur during sign-in or promise handling
-            console.error(error.message);
+            console.error('Login error:', error);
             setLoginMessage(error.message);
-            setLoginStatus(false);
         }
     }
-    
+
     return (
         <main className="bg-[url('/img/p4.jpg')] bg-cover">
             <div className='bg-[#000000bd]'>
@@ -79,9 +87,11 @@ export default function LoginPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    name="username" 
-                                    id='username'
-                                    placeholder="Username"
+                                    name="username"
+                                    id="username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="username"
                                     className="block w-full px-4 py-2 mt-2 text-orange-900 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
                                 />
                             </div>
@@ -91,8 +101,10 @@ export default function LoginPage() {
                                 </label>
                                 <input
                                     type="password"
-                                    name='password'
-                                    id='password'
+                                    name="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="********"
                                     className="block w-full px-4 py-2 mt-2 text-orange-900 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
                                 />
@@ -108,15 +120,15 @@ export default function LoginPage() {
                             </div>
                         </form>
 
-                        {/* Display login status and message */}
-                        {loginStatus !== null && (
-                            <div className={`mt-4 text-sm text-center ${loginStatus ? 'text-orange-600' : 'text-red-600'}`}>
+                        {/* Display login message */}
+                        {loginMessage && (
+                            <div className={`mt-4 text-sm text-center ${loginMessage === 'Signed in successfully!' ? 'text-orange-600' : 'text-red-600'}`}>
                                 {loginMessage}
                             </div>
                         )}
                     </div>
-                </div>    
-            </div>  
+                </div>
+            </div>
         </main>
-    )
+    );
 }
