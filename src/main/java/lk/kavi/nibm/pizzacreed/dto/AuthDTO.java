@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class AuthDTO {
     
-    private int userId;
+    private int authId;
     private String username;
     private String password;
+    public void setRole(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setRole'");
+    }
 }

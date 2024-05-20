@@ -19,75 +19,71 @@ import lk.kavi.nibm.pizzacreed.util.VarList;
 
 @RestController
 @CrossOrigin
-@RequestMapping("api/auth/pizzacreed")
+@RequestMapping("api/pizzacreed/auth")
 public class AuthController {
 
     @Autowired 
     private AuthService authService;
+
     @Autowired
-    private ResponseDTO  responseDTO;
+    private ResponseDTO responseDTO;
 
-    // // SAVE DATA IN DB
-    // @SuppressWarnings({ "rawtypes", "unchecked" })
-    // @PostMapping("/login")
-    // public ResponseEntity login(@RequestBody AuthDTO authDTO) {
-    //     System.out.println(authDTO);
-    //     try {
-    //         String res = authService.login(authDTO);
+    // LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDTO> login(@RequestBody AuthDTO authDTO) {
+        try {
+            String res = authService.login(authDTO);
+            System.out.println("Login response code: " + res);
+            System.out.println("AuthDTO: " + authDTO);
 
-    //         if(res.equals("00")) {
-    //             responseDTO.setCode(VarList.RSP_SUCCESS);
-    //             responseDTO.setMessage("Success");
-    //             responseDTO.setContent(authDTO);
-    //             return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+            if (VarList.RSP_SUCCESS.equals(res)) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Login successful");
+                responseDTO.setContent(authDTO);
+            } else if (VarList.RSP_FAIL.equals(res)) {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Invalid credentials");
+                responseDTO.setContent(null);
+            } else if ("02".equals(res)) {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Account locked");
+                responseDTO.setContent(null);
+            } else {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Login error");
+                responseDTO.setContent(null);
+            }
+        } catch (Exception ex) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+        }
 
-    //         } else if (res.equals("06")) {
-    //             responseDTO.setCode(VarList.RSP_DUPLICATED);
-    //             responseDTO.setMessage("Employee already exists.");
-    //             responseDTO.setContent(authDTO);
-    //             return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+        // Print the response content
+        System.out.println("ResponseDTO: " + responseDTO);
 
-    //         } else if(res.equals("10")) {
-    //             responseDTO.setCode(VarList.RSP_FAIL);
-    //             responseDTO.setMessage("Empty Feilds");
-    //             responseDTO.setContent(authDTO);
-    //             return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+        HttpStatus status = (VarList.RSP_SUCCESS.equals(responseDTO.getCode())) ? HttpStatus.ACCEPTED : HttpStatus.UNAUTHORIZED;
+        return new ResponseEntity<>(responseDTO, status);
+    }
 
-    //         } else {
-    //             responseDTO.setCode(VarList.RSP_FAIL);
-    //             responseDTO.setMessage("error");
-    //             responseDTO.setContent(null);
-    //             return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-    //         }
-
-    //     } catch (Exception ex) {
-    //         responseDTO.setCode(VarList.RSP_ERROR);
-    //         responseDTO.setMessage(ex.getMessage());
-    //         responseDTO.setContent(null);
-    //         return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-    //     }
-        
-    // }
-    
-
-    // GET ALL EMPLOYEES FROM TABLE
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @GetMapping("/findAllEmployees")
-    public ResponseEntity findAllEmployees() throws Exception{
-
+    // GET ALL USERS FROM TABLE
+    @GetMapping("/findAllUsers")
+    public ResponseEntity<ResponseDTO> findAllEmployees() {
         try {
             List<AuthDTO> employeeDTOList = authService.getAll();
             responseDTO.setCode(VarList.RSP_SUCCESS);
             responseDTO.setMessage("Success");
             responseDTO.setContent(employeeDTOList);
-            return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-
         } catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage(ex.getMessage());
             responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-            
         }
+
+        // Print the response content
+        System.out.println("ResponseDTO: " + responseDTO);
+
+        HttpStatus status = (VarList.RSP_SUCCESS.equals(responseDTO.getCode())) ? HttpStatus.ACCEPTED : HttpStatus.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(responseDTO, status);
     }
 }

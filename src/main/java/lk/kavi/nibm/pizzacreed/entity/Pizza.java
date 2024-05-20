@@ -13,13 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "AUTH")
-public class Auth {
+@Table(name = "PIZZA")
+public class Pizza {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int authId;
-    private String username;
-    private String password;
-    private String role; // Add role field
+    private int pizzaId;
+    private String pizzaName;
+    private String pizzaDiscription; 
+    private String catogeryId; 
+    private String pizzaImg;
+
 }
