@@ -37,8 +37,8 @@ public class PizzaService {
                 return VarList.RSP_FAIL;
             }
 
-            boolean pizza = pizzaRepo.existsByPizzaName(pizzaDTO.getPizzaName());
-            if (pizza != false) {
+            boolean pizzaExists = pizzaRepo.existsByPizzaName(pizzaDTO.getPizzaName());
+            if (pizzaExists) {
                 return VarList.RSP_DUPLICATED;
             }
 

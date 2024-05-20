@@ -1,6 +1,8 @@
 package lk.kavi.nibm.pizzacreed.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,8 +19,6 @@ import lk.kavi.nibm.pizzacreed.dto.PizzaDTO;
 import lk.kavi.nibm.pizzacreed.dto.ResponseDTO;
 import lk.kavi.nibm.pizzacreed.service.PizzaService;
 import lk.kavi.nibm.pizzacreed.util.VarList;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin
@@ -30,10 +31,16 @@ public class PizzaController {
     @Autowired
     private ResponseDTO responseDTO;
 
-    // GET ALL Pizza FROM TABLE
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    // Predefined map of valid API keys
+    private Map<String, String> validApiKeys = new HashMap<>() {{
+        put("pizza-gallefort-9911", "1919gallepizzafort");
+        
+    }};
+
+    // GET ALL Pizzas FROM TABLE 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @GetMapping("/menu")
-    public ResponseEntity findAllPizza() throws Exception {
+    public ResponseEntity findAllPizza() {
         try {
             List<PizzaDTO> pizzaDTOList = pizzaService.getAllPizzas();
             responseDTO.setCode(VarList.RSP_SUCCESS);
@@ -51,12 +58,22 @@ public class PizzaController {
     // ADD NEW PIZZA
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping("/addPizza")
-    public ResponseEntity addPizza(@RequestBody PizzaDTO pizzaDTO, HttpServletRequest request) throws Exception {
+    public ResponseEntity addPizza(
+        @RequestBody PizzaDTO pizzaDTO, 
+        @RequestHeader(value = "API-KEY-USERNAME", required = true) String apiKeyUsername,
+        @RequestHeader(value = "API-KEY-PASSWORD", required = true) String apiKeyPassword
+    ) {
+        System.out.println("Received API-KEY-USERNAME: " + apiKeyUsername);
+        System.out.println("Received API-KEY-PASSWORD: " + apiKeyPassword);
+        System.out.println("Valid API Keys: " + validApiKeys + "\n");
+
+
         try {
             // Validate API Key
-            String apiKey = (String) request.getSession().getAttribute("apiKey");
-            System.out.println(apiKey);
-            if (apiKey == null || !apiKey.equals("your_generated_api_key")) { // Use actual generated API key
+            if (apiKeyUsername == null || apiKeyPassword == null || 
+                !validApiKeys.containsKey(apiKeyUsername) || 
+                !validApiKeys.get(apiKeyUsername).equals(apiKeyPassword)
+            ) {
                 responseDTO.setCode(VarList.RSP_FAIL);
                 responseDTO.setMessage("Unauthorized access");
                 responseDTO.setContent(null);

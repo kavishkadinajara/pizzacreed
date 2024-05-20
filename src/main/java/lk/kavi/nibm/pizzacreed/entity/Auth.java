@@ -21,5 +21,4 @@ public class Auth {
     private int authId;
     private String username;
     private String password;
-    private String role; // Add role field
 }
