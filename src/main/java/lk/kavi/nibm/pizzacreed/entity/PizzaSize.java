@@ -9,21 +9,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "PIZZA")
-public class Pizza {
+@Table(name = "pizza_size")
+public class PizzaSize {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    private int pizzaSizeId;
     private int pizzaId;
-    private String pizzaName;
-    private String pizzaDiscription; 
-    private String categoryId; 
-    private String pizzaImg;
-
+    private int sizeId;
+    private double pizzaPrice; // Corrected the spelling
 }

@@ -11,14 +11,14 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.authId = user.id;
         token.username = user.username;
       }
       return token;
     },
     async session({ session, token }) {
-      // session.user.id = token.id;
-      // session.user.username = token.username;
+      session.user.id = token.id;
+      session.user.username = token.username;
       session.user = token.user;
       console.log("Session: " + session);
       console.log("Token:" + token);
@@ -33,7 +33,7 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
-          const res = await fetch('http://localhost:8080/api/auth/pizzacreed/login', {
+          const res = await fetch('http://localhost:8080/api/pizzacreed/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
@@ -44,10 +44,12 @@ const handler = NextAuth({
 
 
           const data = await res.json();
+          console.log("DATA : " + data);
+          console.log("DATA : " + data.authId + " --> " + data.content.username  + "-->" + data.content.password);
 
           if (res.ok && data.code === '00') {
             const user = {
-              id: data.content.userId,
+              id: data.content.authId,
               username: data.content.username,
               
             };
