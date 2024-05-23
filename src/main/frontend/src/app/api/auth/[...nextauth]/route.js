@@ -11,17 +11,17 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.authId = user.id;
+        token.id = user.id;
         token.username = user.username;
       }
+      console.log("token" + token);
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.username = token.username;
-      session.user = token.user;
-      console.log("Session: " + session);
-      console.log("Token:" + token);
+      session.user = {
+        id: token.id,
+        username: token.username,
+      };
       return session;
     },
   },
@@ -37,23 +37,16 @@ const handler = NextAuth({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
-            credentials: 'include',
           });
-          console.log("Res:" + res);
-          console.log("Cre:" + credentials);
-
 
           const data = await res.json();
-          console.log("DATA : " + data);
-          console.log("DATA : " + data.authId + " --> " + data.content.username  + "-->" + data.content.password);
 
           if (res.ok && data.code === '00') {
             const user = {
               id: data.content.authId,
               username: data.content.username,
-              
             };
-            console.log(user);
+            console.log("user" + user);
             return user;
           } else {
             return null;

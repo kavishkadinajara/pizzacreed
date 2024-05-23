@@ -1,72 +1,61 @@
 'use client';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
     const router = useRouter();
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-
-    // State variable to handle login message
     const [loginMessage, setLoginMessage] = useState('');
 
     async function handleLogin(e) {
         e.preventDefault();
+        toast.dismiss();
         try {
-            toast.dismiss();
-            await toast.promise(
-                new Promise(async (resolve, reject) => {
-                    try {
-                        const response = await fetch('http://localhost:8080/api/auth/pizzacreed/adminlogin', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ username, password }),
-                            credentials: 'include' // Include credentials (cookies)
-                        });
-
-                        if (response.status === 401) {
-                            setLoginMessage('Incorrect username or password');
-                            reject(new Error('Incorrect username or password'));
-                            return;
-                        }
-
-                        const result = await response.json();
-                        console.log({ result });
-
-                        if (response.ok && result.code === '00') {
-                            router.push('/');
-                            router.refresh();
-                            setLoginMessage('Signed in successfully!');
-                            resolve(result);
-                        } else {
-                            const errorMessage = result.message || 'Login failed';
-                            setLoginMessage(errorMessage);
-                            reject(new Error(errorMessage));
-                        }
-                    } catch (networkError) {
-                        setLoginMessage('Network error: Failed to connect to the server');
-                        reject(new Error('Network error: Failed to connect to the server'));
-                    }
-                }),
-                {
-                    loading: 'Signing in...',
-                    success: 'Signed in successfully!',
-                    error: (err) => `${err.message}`,
+            const response = await fetch('http://localhost:8080/api/pizzacreed/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                {
-                    style: {
-                        minWidth: '250px',
-                    },
-                }
-            );
+                body: JSON.stringify({ username, password }),
+                credentials: 'include', // Include credentials (cookies)
+            });
+
+            if (response.status === 401) {
+                setLoginMessage('Incorrect username or password');
+                toast.error('Incorrect username or password');
+                return;
+            }
+
+            if (!response.ok) {
+                const errorMessage = `Error: ${response.status} ${response.statusText}`;
+                setLoginMessage(errorMessage);
+                toast.error(errorMessage);
+                return;
+            }
+
+            const result = await response.json();
+            if (result.code === '00') {
+                setLoginMessage('Signed in successfully!');
+                toast.success('Signed in successfully!');
+                router.push('/');
+                router.refresh();
+            } else {
+                const errorMessage = result.message || 'Login failed';
+                setLoginMessage(errorMessage);
+                toast.error(errorMessage);
+            }
         } catch (error) {
+            if (error.name === 'TypeError') {
+                setLoginMessage('Network error: Failed to connect to the server');
+                toast.error('Network error: Failed to connect to the server');
+            } else {
+                setLoginMessage(error.message);
+                toast.error(error.message);
+            }
             console.error('Login error:', error);
-            setLoginMessage(error.message);
         }
     }
 
@@ -120,7 +109,6 @@ export default function LoginPage() {
                             </div>
                         </form>
 
-                        {/* Display login message */}
                         {loginMessage && (
                             <div className={`mt-4 text-sm text-center ${loginMessage === 'Signed in successfully!' ? 'text-orange-600' : 'text-red-600'}`}>
                                 {loginMessage}

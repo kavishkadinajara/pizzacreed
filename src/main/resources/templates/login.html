@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login | Pizza Creed</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black">
+
+<main class="bg-[url('/img/p4.jpg')] bg-cover">
+    <div class="bg-[#000000bd]">
+        <div class="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+            <div class="w-full p-6 bg-black rounded-md shadow-md lg:max-w-xl">
+                <a href="/">
+                    <h1 class="text-3xl font-bold text-center text-gray-700">
+                        <span class="text-orange-400">Pizza Creed</span> - <span class="text-orange-200">Admin Login</span>
+                    </h1>
+                </a>
+                <form class="mt-6">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-semibold text-gray-600">
+                            Username
+                        </label>
+                        <input
+                            type="text"
+                            name="username"
+                            id="username"
+                            placeholder="username"
+                            class="block w-full px-4 py-2 mt-2 text-orange-900 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                        />
+                    </div>
+                    <div class="mb-2">
+                        <label for="password" class="block text-sm font-semibold text-gray-600">
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder="********"
+                            class="block w-full px-4 py-2 mt-2 text-orange-900 bg-white border rounded-md focus:border-orange-400 focus:ring-orange-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                        />
+                    </div>
+                    <a href="/forget" class="text-xs text-orange-600 hover:underline">
+                        Forget Password?
+                    </a>
+                    <div class="mt-2 mb-4">
+                        <button
+                            class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-orange-500 rounded-md hover:bg-orange-600 focus:outline-none focus:bg-orange-700">
+                            Login
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Conditional login message -->
+                <div id="loginMessage" class="mt-4 text-sm text-center">
+                    <!-- This content will be dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const form = document.querySelector('form');
+    const loginMessageDiv = document.getElementById('loginMessage');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const username = form.username.value;
+        const password = form.password.value;
+
+        // Make AJAX request to login endpoint
+        fetch('/api/pizzacreed/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === '00') {
+                // Login successful
+                loginMessageDiv.textContent = data.message;
+                loginMessageDiv.className = 'mt-4 text-sm text-center text-orange-600';
+                // Store username in session
+                sessionStorage.setItem('username', username);
+                // Redirect to the admin dashboard or perform any other action
+                window.location.href = '/admin_dashboard'; // Change the URL as needed
+            } else {
+                // Login failed
+                loginMessageDiv.textContent = data.message;
+                loginMessageDiv.className = 'mt-4 text-sm text-center text-red-600';
+            }
+        })
+        .catch(error => {
+            console.error('Error logging in:', error);
+            loginMessageDiv.textContent = 'An error occurred while logging in.';
+            loginMessageDiv.className = 'mt-4 text-sm text-center text-red-600';
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

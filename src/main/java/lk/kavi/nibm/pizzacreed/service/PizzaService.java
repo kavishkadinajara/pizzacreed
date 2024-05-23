@@ -36,7 +36,7 @@ public class PizzaService {
     @Autowired
     private ModelMapper modelMapper;
 
-    // GET ALL PIZZAS FROM TABLE
+    // GET ALL PIZZAS DETAILS FROM TABLE
     public List<PizzaDetailsDTO> getAllPizzas() {
         List<Object[]> pizzaDetailsList = pizzaRepo.getAllPizzaDetails();
         Map<Integer, PizzaDetailsDTO> pizzaMap = new HashMap<>();
@@ -55,10 +55,11 @@ public class PizzaService {
                     pizzaDetailsDTO.setSizes(new ArrayList<>());
                 }
 
-                if (record[4] != null && record[5] != null) {
+                if (record[4] != null && record[5] != null && record[6] != null) {
                     PizzaSizeDTO sizeDTO = new PizzaSizeDTO();
                     sizeDTO.setSizeId((Integer) record[4]);
-                    sizeDTO.setPrice((Double) record[5]);
+                    sizeDTO.setSizeName((String) record[5]); // Add sizeName mapping
+                    sizeDTO.setPrice((Double) record[6]);
                     pizzaDetailsDTO.getSizes().add(sizeDTO);
                 }
 
@@ -156,6 +157,28 @@ public class PizzaService {
             return VarList.RSP_SUCCESS;
         } catch (Exception e) {
             throw new RuntimeException("Error updating pizza", e);
+        }
+    }
+
+    // DELETE PIZZA SERVICE METHOD
+    public String deletePizza(int pizzaID) {
+        try {
+            if (pizzaRepo.existsById(pizzaID)) {
+                // Delete associated pizza sizes first
+                List<PizzaSize> pizzaSizes = pizzaSizeRepo.findByPizzaId(pizzaID);
+                pizzaSizeRepo.deleteAll(pizzaSizes);
+
+                // Then delete the pizza
+                pizzaRepo.deleteById(pizzaID);
+                return VarList.RSP_SUCCESS;
+            } else {
+                return VarList.RSP_NO_DATA_FOUND;
+            }
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            // Return a generic error response
+            return VarList.RSP_ERROR;
         }
     }
 }

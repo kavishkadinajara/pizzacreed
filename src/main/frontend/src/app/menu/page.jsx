@@ -1,141 +1,126 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Footer from '@/components/Footer';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 export default function ProductListing() {
     const router = useRouter();
-    const [products, setProducts] = useState([]);
+    const [pizzas, setPizza] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedOptions, setSelectedOptions] = useState({});
 
-    // Fetch program list
+    // Fetch Pizza list
     useEffect(() => {
+        fetchPizzaMenu();
+    }, []);
+
+    const fetchPizzaMenu = () => {
         fetch('http://localhost:8080/api/pizzacreed/pizza/menu')
-        .then((response) => {
+            .then((response) => {
                 if (!response.ok) {
-                throw new Error('failed to fetch programs');
+                    throw new Error('Failed to fetch pizzas');
                 }
                 return response.json();
             })
-            .then((data) => {
-            console.log(data);
-            if (!data) {
-                //toast.error('Check your connection !');
-                return;
-            }
-            // const newProgramList = data.map((Program) => ({
-            // value: Program.web_value,
-            // label: Program.name,
-            // }));
-            setProducts(data[0]);
+            .then(data => {
+                if (data.content) {
+                    setPizza(data.content);
+                } else {
+                    setError("Failed to load pizzas: " + (data.message || "Unknown Error!!!"));
+                }
+            })
+            .catch(err => {
+                setError(err.message);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
 
-           });
-    }, []);
+    const handleOptionChange = (pizzaId, optionType, value) => {
+        setSelectedOptions(prevOptions => ({
+          ...prevOptions,
+          [pizzaId]: {
+            ...prevOptions[pizzaId],
+            [optionType]: value
+          }
+        }));
+    };
+    
+    const getSelectedPrice = (pizzaId) => {
+        const selectedSizeId = selectedOptions[pizzaId]?.size;
+        const selectedPizza = pizzas.find(pizza => pizza.pizzaId === pizzaId);
+        const selectedSize = selectedPizza?.sizes.find(size => size.sizeId.toString() === selectedSizeId);
+        return selectedSize ? selectedSize.price : null;
+    };
 
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
 
     return (
-    <div>
-        <div className="container py-12 px-8 ">
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-                {/* {products.map(product => (
-                <div key={product.id}
-                    className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#001515] to-black rounded-lg shadow-md flex flex-col justify-center items-center">
-                    <img src={product.image} alt={product.name} className="w-full  object-cover rounded-t-lg" />
-                    <div className="p-6 text-center">
-                        <h3 className="text-xl text-orange-200 font-semibold mb-2">{product.name}</h3>
-                        <p className="text-orange-400 mb-4">{product.description}</p>
-                        <p className="text-orange-800 font-semibold">${product.price}</p>
-                        <button
-                            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition duration-300">
-                            Order Now
-                        </button>
-                    </div>
-                </div>
-                ))} */}
-
-                <div
-                    className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black rounded-lg shadow-md flex flex-col justify-center items-center">
+        <div>
+            <div className="container py-12 px-8 ">
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+                {pizzas.map(pizza => (
+                    <div
+                    key={pizza.pizzaId}
+                    className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black rounded-lg shadow-md flex flex-col justify-center items-center mb-6">
                     {/* Pizza Image */}
-                    <img src={'/img/p2.png'} alt={'pizza'} className="w-full rounded-t-lg object-cover" />
+                    <img src={`img/${pizza.pizzaImg}`} alt={`${pizza.pizzaName}`} className="w-full h-42 rounded-t-lg object-cover" />
 
-                    <div className=" pt-4 text-center">
+                    <div className="pt-4 text-center">
                         {/* Pizza Title */}
-                        <h3 className="text-xl text-orange-200 font-semibold mb-2">Pizza</h3>
-                        {/* Pizza Discription */}
-                        <h3 className="text-md text-orange-100 font-thin text-justify mb-2">Pizza</h3>
+                        <h3 className="text-xl text-orange-200 font-semibold mb-2">{pizza.pizzaName}</h3>
+                        {/* Pizza Description */}
+                        <h3 className="text-sm text-orange-100 font-thin text-justify mb-2 mx-6">{pizza.pizzaDiscription}</h3>
 
                         <p className="text-orange-400 mb-4">Choose your crust</p>
-                        {/* Size Selection Dropdown */}
-                        <select value={2} onChange={'handleSizeChange'}
-                            className="mb-4 w-full px-4 py-1 rounded-2xl border-2 border-orange-500 text-orange-900">
-                            <option className='bg-orange-300' value="small">Pan</option>
-                            <option className='bg-orange-300' value="medium">Sausage</option>
+                        {/* Crust Selection Dropdown */}
+                        <select
+                        value={selectedOptions[pizza.pizzaId]?.crust || ''}
+                        onChange={(e) => handleOptionChange(pizza.pizzaId, 'crust', e.target.value)}
+                        className="mb-4 w-3/4 px-4 py-1  rounded-2xl border-2 border-orange-500 text-orange-900"
+                        >
+                        <option className='bg-orange-300 mx-10' value="">Select Crust</option>
+                        <option className='bg-orange-300' value="Pan">Pan</option>
+                        <option className='bg-orange-300' value="Sausage">Sausage</option>
                         </select>
 
                         <p className="text-orange-400 mb-4">Choose Size</p>
                         {/* Size Selection Dropdown */}
-                        <select value={2} onChange={'handleSizeChange'}
-                            className="mb-4 w-full px-4 py-1 rounded-2xl border-2 border-orange-500 text-orange-900">
-                            <option className='bg-orange-300' value="small">Small - Rs.1000</option>
-                            <option className='bg-orange-300' value="medium">Medium - Rs.1500</option>
-                            <option className='bg-orange-300' value="large">Large - Rs.2200</option>
+                        <select
+                        value={selectedOptions[pizza.pizzaId]?.size || ''}
+                        onChange={(e) => handleOptionChange(pizza.pizzaId, 'size', e.target.value)}
+                        className="mb-4 w-3/4 px-4 py-1 rounded-2xl border-2 border-orange-500 text-orange-900"
+                        >
+                        <option className='bg-orange-300' value="">Select Size</option>
+                        {pizza.sizes.map(size => (
+                            <option key={size.sizeId} className='bg-orange-300' value={size.sizeId}>
+                            {size.sizeName} - Rs.{size.price}
+                            </option>
+                        ))}
                         </select>
 
-                        {/* Display selected size price (if needed, currently empty) */}
-                        <p className="text-orange-800 font-semibold">{/* Optionally display selected size price here */}</p>
+                        {/* Display selected size price
+                        <p className="text-orange-800 font-semibold">
+                        {getSelectedPrice(pizza.pizzaId) && `${selectedOptions[pizza.pizzaId]?.sizeName} - Rs.${getSelectedPrice(pizza.pizzaId)}`}
+                        </p> */}
 
                         {/* Order Button */}
-                        <button className="my-4 flex items-center justify-center bg-orange-500 text-white py-2 px-8 rounded-3xl hover:bg-orange-600 transition duration-300">
-                            Add to bucket <PlusIcon className='ml-2 w-5 h-5 font-semibold text-white' />
-                        </button>
+                        <div className='flex justify-center mt-6 mb-5'>
+                            <button className="flex justify-center mb-4 w-4/5 border-2 border-orange-500  bg-orange-500 text-white py-2 px-8 rounded-3xl hover:bg-orange-600 transition duration-300">
+                            Add to bucket <PlusIcon className='ml-2 h-5 font-semibold text-white' />
+                            </button>
+                        </div>
                     </div>
-                    
-                </div>
-                <div
-                    className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#1e0d00] to-black rounded-lg shadow-md flex flex-col justify-center items-center">
-                    {/* Pizza Image */}
-                    <img src={'/img/p1.png'} alt={'pizza'} className="w-full rounded-t-lg object-cover" />
-
-                    <div className=" pt-4 text-center">
-                        {/* Pizza Title */}
-                        <h3 className="text-xl text-orange-200 font-semibold mb-2">Pizza</h3>
-                        {/* Pizza Discription */}
-                        <h3 className="text-md text-orange-100 font-thin text-justify mb-2">Pizza</h3>
-
-                        <p className="text-orange-400 mb-4">Choose your crust</p>
-                        {/* Size Selection Dropdown */}
-                        <select value={2} onChange={'handleSizeChange'}
-                            className="mb-4 w-full px-4 py-1 rounded-2xl border-2 border-orange-500 text-orange-900">
-                            <option className='bg-orange-300' value="small">Pan</option>
-                            <option className='bg-orange-300' value="medium">Sausage</option>
-                        </select>
-
-                        <p className="text-orange-400 mb-4">Choose Size</p>
-                        {/* Size Selection Dropdown */}
-                        <select value={2} onChange={'handleSizeChange'}
-                            className="mb-4 w-full px-4 py-1 rounded-2xl border-2 border-orange-500 text-orange-900">
-                            <option className='bg-orange-300' value="small">Small - Rs.1000</option>
-                            <option className='bg-orange-300' value="medium">Medium - Rs.1500</option>
-                            <option className='bg-orange-300' value="large">Large - Rs.2200</option>
-                        </select>
-
-                        {/* Display selected size price (if needed, currently empty) */}
-                        <p className="text-orange-800 font-semibold">{/* Optionally display selected size price here */}</p>
-
-                        {/* Order Button */}
-                        <button className="my-4 flex items-center justify-center bg-orange-500 text-white py-2 px-8 rounded-3xl hover:bg-orange-600 transition duration-300">
-                            Add to bucket <PlusIcon className='ml-2 w-5 h-5 font-semibold text-white' />
-                        </button>
                     </div>
-                    
+                ))}
                 </div>
-
             </div>
+            <Footer />
         </div>
-        <Footer />
-    </div>
     );
 }

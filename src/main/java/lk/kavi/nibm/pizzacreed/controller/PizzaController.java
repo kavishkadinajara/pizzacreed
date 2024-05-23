@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +61,7 @@ public class PizzaController {
             responseDTO.setContent(null);
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        
     }
 
     // GET ALL Pizzas FROM TABLE 
@@ -139,6 +142,7 @@ public class PizzaController {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @PutMapping("/updatepizza")
     public ResponseEntity updatePizza(
+        
         @RequestBody PizzaDTO pizzaDTO, 
         @RequestHeader(value = "API-KEY-USERNAME", required = true) String apiKeyUsername,
         @RequestHeader(value = "API-KEY-PASSWORD", required = true) String apiKeyPassword
@@ -187,6 +191,54 @@ public class PizzaController {
             responseDTO.setMessage(ex.getMessage());
             responseDTO.setContent(null);
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // DELETE PIZZA CONTROLLER METHOD
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @DeleteMapping("/deletePizza/{pizzaId}")
+    public ResponseEntity<?> deletePizza(
+        @PathVariable int pizzaId,
+        @RequestHeader(value = "API-KEY-USERNAME", required = true) String apiKeyUsername
+        //@RequestHeader(value = "API-KEY-PASSWORD", required = true) String apiKeyPassword
+    ) {
+        System.out.println("Received API-KEY-USERNAME: " + apiKeyUsername);
+       // System.out.println("Received API-KEY-PASSWORD: " + apiKeyPassword);
+        System.out.println("Valid API Keys: " + validApiKeys + "\n");
+ 
+        try {
+            // Validate API Key
+            if (apiKeyUsername == null ||
+                !validApiKeys.containsKey(apiKeyUsername)) {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Unauthorized access");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+ 
+            String res = pizzaService.deletePizza(pizzaId);
+ 
+            if (VarList.RSP_NO_DATA_FOUND.equals(res)) {
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("Pizza not found");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            } else if (VarList.RSP_SUCCESS.equals(res)) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
+            } else {
+                responseDTO.setCode(VarList.RSP_ERROR);
+                responseDTO.setMessage("Unknown error");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception ex) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

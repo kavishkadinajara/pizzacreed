@@ -11,9 +11,16 @@ public interface PizzaRepo extends JpaRepository<Pizza, Integer> {
 
     boolean existsByPizzaName(String pizzaName);
 
-    @Query(value = "SELECT p.pizza_id AS pizzaId, p.pizza_name AS pizzaName, p.pizza_discription AS pizzaDiscription, " +
-                   "p.pizza_img AS pizzaImg, ps.size_id AS sizeId, ps.pizza_price AS price " +
-                   "FROM pizza p " +
-                   "LEFT JOIN pizza_size ps ON p.pizza_id = ps.pizza_id", nativeQuery = true)
-    List<Object[]> getAllPizzaDetails();
+    @Query(value = "SELECT p.pizza_id AS pizzaId, " +
+               "p.pizza_name AS pizzaName, " +
+               "p.pizza_discription AS pizzaDiscription, " +
+               "p.pizza_img AS pizzaImg, " +
+               "s.size_id AS sizeId, " +
+               "s.size_name AS sizeName, " +
+               "ps.pizza_price AS pizzaPrice " +
+               "FROM pizza p " +
+               "INNER JOIN pizza_size ps ON p.pizza_id = ps.pizza_id " +
+               "INNER JOIN size s ON ps.size_id = s.size_id", nativeQuery = true)
+List<Object[]> getAllPizzaDetails();
+
 }

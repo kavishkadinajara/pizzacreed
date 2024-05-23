@@ -21,5 +21,5 @@ public class PizzaSize {
     private int pizzaSizeId;
     private int pizzaId;
     private int sizeId;
-    private double pizzaPrice; // Corrected the spelling
+    private double pizzaPrice;
 }
