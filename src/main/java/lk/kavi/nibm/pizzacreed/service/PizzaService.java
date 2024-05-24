@@ -76,6 +76,51 @@ public class PizzaService {
         return new ArrayList<>(pizzaMap.values());
     }
 
+   // GET PIZZA DETAILS BY ID 
+    public PizzaDetailsDTO findPizzaById(int pizzaId) {
+        List<Object[]> pizzaDetailsList = pizzaRepo.getAllPizzaDetails();
+        Map<Integer, PizzaDetailsDTO> pizzaMap = new HashMap<>();
+
+        pizzaDetailsList.forEach(record -> {
+            try {
+                int currentPizzaId = (Integer) record[0];
+                if (currentPizzaId != pizzaId) {
+                    return; // Skip if the pizza ID doesn't match
+                }
+
+                PizzaDetailsDTO pizzaDetailsDTO = pizzaMap.getOrDefault(currentPizzaId, new PizzaDetailsDTO());
+
+                pizzaDetailsDTO.setPizzaId(currentPizzaId);
+                pizzaDetailsDTO.setPizzaName((String) record[1]);
+                pizzaDetailsDTO.setPizzaDiscription((String) record[2]);
+                pizzaDetailsDTO.setPizzaImg((String) record[3]);
+
+                if (pizzaDetailsDTO.getSizes() == null) {
+                    pizzaDetailsDTO.setSizes(new ArrayList<>());
+                }
+
+                if (record[4] != null && record[5] != null && record[6] != null) {
+                    PizzaSizeDTO sizeDTO = new PizzaSizeDTO();
+                    sizeDTO.setSizeId((Integer) record[4]);
+                    sizeDTO.setSizeName((String) record[5]);
+                    sizeDTO.setPrice((Double) record[6]);
+                    pizzaDetailsDTO.getSizes().add(sizeDTO);
+                }
+
+                pizzaMap.put(currentPizzaId, pizzaDetailsDTO);
+            } catch (IndexOutOfBoundsException e) {
+                // Handle the exception and log it
+                System.err.println("Index out of bounds for record: " + java.util.Arrays.toString(record));
+            } catch (Exception e) {
+                // Handle other possible exceptions
+                System.err.println("Error processing record: " + java.util.Arrays.toString(record));
+            }
+        });
+
+        return pizzaMap.get(pizzaId);
+    }
+
+
     // GET ALL PIZZAS FROM TABLE
     public List<PizzaDTO> getAllEmployees() {
         List<Pizza> employeeList = pizzaRepo.findAll();
@@ -83,7 +128,6 @@ public class PizzaService {
     }
 
     // ADD NEW PIZZA
-    @Transactional
     public String addPizza(PizzaDTO pizzaDTO) {
         try {
             // Save pizza
@@ -92,6 +136,8 @@ public class PizzaService {
 
             // Get the ID of the last inserted pizza
             int lastInsertedPizzaId = savedPizza.getPizzaId();
+            System.out.println(lastInsertedPizzaId);
+            
 
             // Save pizza sizes
             for (PizzaSizeDTO sizePizzaDTO : pizzaDTO.getSizes()) {
@@ -106,9 +152,6 @@ public class PizzaService {
         } catch (DataIntegrityViolationException e) {
             // This exception indicates a duplicate entry or constraint violation
             return VarList.RSP_DUPLICATED;
-        } catch (NullPointerException e) {
-            // This exception indicates missing required fields
-            return VarList.RSP_FAIL;
         } catch (Exception e) {
             e.printStackTrace();
             return VarList.RSP_ERROR;
@@ -129,7 +172,7 @@ public class PizzaService {
             pizza.setPizzaName(pizzaDTO.getPizzaName());
             pizza.setPizzaDiscription(pizzaDTO.getPizzaDiscription());
             pizza.setPizzaImg(pizzaDTO.getPizzaImg());
-            pizza.setCategoryId(pizzaDTO.getCategoryId());
+            //pizza.setCategoryId(pizzaDTO.getCategoryId());
 
             // Get existing sizes for the pizza
             List<PizzaSize> existingSizes = pizzaSizeRepo.findByPizzaId(pizzaDTO.getPizzaId());

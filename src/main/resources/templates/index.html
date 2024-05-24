@@ -9,9 +9,9 @@
 <body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black text-white">
 
 <header class="px-5 py-1 text-white shadow-lg">
-    <nav class="container mx-auto flex items-center justify-between py-1">
+    <nav class="container mx-auto flex flex-col items-center justify-between py-1 md:flex-row">
         <!-- Logo -->
-        <a href="/" class="flex space-x-2">
+        <a href="/" class="flex items-center space-x-2 mb-4 md:mb-0">
             <div>
                 <img src="/img/logo-3.png" width="72" height="75" alt="Logo">
             </div>
@@ -19,9 +19,9 @@
                 <span class="text-orange-600">Pizza</span>-<span class="text-orange-500">Creed</span>
             </div>
         </a>
-
+    
         <!-- Navigation Links -->
-        <ul class="flex items-center space-x-8 text-orange-300">
+        <ul class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 text-orange-300">
             <li>
                 <a href="/" class="hover:text-orange-500">Home</a>
             </li>
@@ -29,14 +29,15 @@
                 <a href="/addpizza" class="hover:text-orange-500">Add Pizza</a>
             </li>
         </ul>
-
+    
         <!-- Login/Logout button -->
-        <div>   
+        <div>
             <div class="flex gap-4">
-                <a href="/login" class="text-xl text-orange-500 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
+                <a href="/login" class="text-xl text-orange-500 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
             </div>
         </div>
     </nav>
+    
 </header>
 
 <div class="container mx-auto mt-5 p-5">
@@ -64,7 +65,7 @@
     }
 
     // Make an AJAX request to fetch pizza data
-    fetch('/api/pizzacreed/pizza/menu', {
+    fetch('/api/pizzacreed/pizza/menu1', {
         headers: {
             'API-KEY-USERNAME': getSessionUsername(), // Set API key username from session
             'Content-Type': 'application/json'
@@ -87,7 +88,7 @@
                                 <h3 class="text-sm text-orange-100 font-thin text-justify mb-2 mx-6">${pizza.pizzaDiscription}</h3>
                                 <!-- Add more pizza details here -->
                                 <div class="flex justify-center space-x-3 mt-4">
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Edit</button>
+                                    <a href="/edit/${pizza.pizzaId}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Edit</a>
                                     <button onclick="deletePizza(${pizza.pizzaId})" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">Delete</button>
                                 </div>
                             </div>

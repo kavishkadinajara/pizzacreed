@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Pizza</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        function getSessionUsername() {
+            // Assume this function checks session storage or cookies for a session username
+            return sessionStorage.getItem('username') || null;
+        }
+
+        function checkSession() {
+            const username = getSessionUsername();
+            if (!username) {
+                window.location.href = '/login';
+            }
+        }
+
+        function getPizzaIdFromUrl() {
+            const path = window.location.pathname;
+            const segments = path.split('/');
+            return segments[segments.length - 1];
+        }
+
+        function getPizzaDetails() {
+            const pizzaId = getPizzaIdFromUrl();
+            if (!pizzaId || isNaN(pizzaId)) {
+                console.error('Invalid pizzaId');
+                return;
+            }
+            document.getElementById('pizzaId').value = pizzaId;
+            
+            fetch(`/api/pizzacreed/pizza/menu/${pizzaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === '00') {
+                        const pizza = data.content;
+                        document.getElementById('pizzaName').value = pizza.pizzaName;
+                        document.getElementById('pizzaDiscription').value = pizza.pizzaDiscription;
+                        document.getElementById('pizzaImgName').value = pizza.pizzaImg; // Set image name
+                        document.getElementById('currentPizzaImg').src = `/img/${pizza.pizzaImg}`;
+                        pizza.sizes.forEach(size => {
+                            document.getElementById(`sizeName${size.sizeId}`).value = size.sizeName;
+                            document.getElementById(`price${size.sizeId}`).value = size.price;
+                        });
+                    } else {
+                        console.error('Failed to fetch pizza details:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching pizza details:', error));
+        }
+
+        function updatePizzaDetails(event) {
+            event.preventDefault();
+
+            const pizzaId = document.getElementById('pizzaId').value;
+            const pizzaName = document.getElementById('pizzaName').value;
+            const pizzaDiscription = document.getElementById('pizzaDiscription').value;
+            const pizzaImg = document.getElementById('pizzaImgName').value; // Get image name
+            const sizes = [
+                {
+                    sizeId: 1,
+                    sizeName: document.getElementById('sizeName1').value,
+                    price: parseFloat(document.getElementById('price1').value)
+                },
+                {
+                    sizeId: 2,
+                    sizeName: document.getElementById('sizeName2').value,
+                    price: parseFloat(document.getElementById('price2').value)
+                },
+                {
+                    sizeId: 3,
+                    sizeName: document.getElementById('sizeName3').value,
+                    price: parseFloat(document.getElementById('price3').value)
+                }
+            ];
+
+            const pizzaData = {
+                pizzaId: pizzaId,
+                pizzaName: pizzaName,
+                pizzaDiscription: pizzaDiscription,
+                pizzaImg: pizzaImg,
+                sizes: sizes
+            };
+            
+            fetch(`/api/pizzacreed/pizza/updatepizza`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-KEY-USERNAME': getSessionUsername()
+                },
+                body: JSON.stringify(pizzaData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === '00') {
+                        alert('Pizza updated successfully!');
+                    } else {
+                        alert('Failed to update pizza: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error updating pizza details:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+            getPizzaDetails();
+        });
+    </script>
+
+</head>
+<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">Edit Pizza</h1>
+        <form id="editPizzaForm" onsubmit="updatePizzaDetails(event)" class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black p-6 rounded-lg shadow-lg">
+            <input type="hidden" id="pizzaId" name="pizzaId">
+
+            <div class="mb-4">
+                <label for="pizzaName" class="block text-lg font-medium">Pizza Name</label>
+                <input type="text" id="pizzaName" name="pizzaName" class="w-full p-2 rounded bg-orange-900 text-white" readonly required>
+            </div>
+
+            <div class="mb-4">
+                <label for="pizzaDiscription" class="block text-lg font-medium">Pizza Description</label>
+                <textarea id="pizzaDiscription" name="pizzaDiscription" class="w-full p-2 rounded bg-orange-900 text-white" rows="4" required></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="pizzaImgName" class="block text-lg font-medium">Pizza Image Name</label>
+                <input type="text" id="pizzaImgName" name="pizzaImgName" class="w-full p-2 rounded bg-orange-900 text-white" required>
+                <img id="currentPizzaImg" class="mt-4 rounded" src="" alt="Pizza Image" style="width: 200px;">
+            </div>
+
+            <h2 class="text-2xl font-bold mb-4">Sizes</h2>
+            
+            <div class="mb-4">
+                <label for="sizeName1" class="block text-lg font-medium">Small Size Name</label>
+                <input type="text" id="sizeName1" name="sizeName1" class="w-full p-2 rounded bg-orange-900 text-white" required>
+                <label for="price1" class="block text-lg font-medium mt-2">Small Size Price</label>
+                <input type="number" step="0.01" id="price1" name="price1" class="w-full p-2 rounded bg-orange-900 text-white" required>
+            </div>
+            <div class="mb-4">
+                <label for="sizeName2" class="block text-lg font-medium">Regular Size Name</label>
+                <input type="text" id="sizeName2" name="sizeName2" class="w-full p-2 rounded bg-orange-900 text-white" required>
+                <label for="price2" class="block text-lg font-medium mt-2">Regular Size Price</label>
+                <input type="number" step="0.01" id="price2" name="price2" class="w-full p-2 rounded bg-orange-900 text-white" required>
+            </div>
+            <div class="mb-4">
+                <label for="sizeName3" class="block text-lg font-medium">Large Size Name</label>
+                <input type="text" id="sizeName3" name="sizeName3" class="w-full p-2 rounded bg-orange-900 text-white" required>
+                <label for="price3" class="block text-lg font-medium mt-2">Large Size Price</label>
+                <input type="number" step="0.01" id="price3" name="price3" class="w-full p-2 rounded bg-orange-900 text-white" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">Update Pizza</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

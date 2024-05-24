@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { compare } from 'bcrypt';
+import { query } from '@/lib/db';
 
 const handler = NextAuth({
   session: {
@@ -12,16 +14,13 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.username = user.username;
       }
-      console.log("token" + token);
       return token;
     },
     async session({ session, token }) {
-      session.user = {
-        id: token.id,
-        username: token.username,
-      };
+      session.user = { id: token.id, name: token.name, username: token.username };
       return session;
     },
   },
@@ -31,30 +30,37 @@ const handler = NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        try {
-          const res = await fetch('http://localhost:8080/api/pizzacreed/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(credentials),
-          });
+      async authorize(credentials, req) {
+        console.log("Credentials:", credentials);
+        
+        const response = await query({
+          query: "SELECT * FROM auth WHERE username= ?;",
+          values: [credentials?.username]
+        });
+        
+        console.log("Database response:", response);
 
-          const data = await res.json();
+        const user = response[0];
 
-          if (res.ok && data.code === '00') {
-            const user = {
-              id: data.content.authId,
-              username: data.content.username,
-            };
-            console.log("user" + user);
-            return user;
-          } else {
-            return null;
-          }
-        } catch (error) {
-          console.error('Login error:', error);
+        if (!user) {
+          console.log("User not found");
           return null;
         }
+
+        const passwordCorrect = await compare(credentials?.password || '', user.password);
+
+        console.log("Password correct:", passwordCorrect);
+
+        if (passwordCorrect) {
+          return {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+          };
+        }
+
+        console.log("Invalid credentials");
+        return null;
       },
     }),
   ],

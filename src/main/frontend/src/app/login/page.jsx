@@ -10,7 +10,6 @@ export default function LoginPage() {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
   const [loginMessage, setLoginMessage] = useState('');
 
   async function handleLogin(e) {
@@ -22,6 +21,8 @@ export default function LoginPage() {
         username,
         password,
       });
+
+      console.log("Sign-in result:", result);
 
       if (result.error) {
         setLoginMessage(result.error);
@@ -87,7 +88,6 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* Display login message */}
             {loginMessage && (
               <div className={`mt-4 text-sm text-center ${loginMessage === 'Signed in successfully!' ? 'text-orange-600' : 'text-red-600'}`}>
                 {loginMessage}

@@ -18,7 +18,7 @@ export default function ProductListing() {
     }, []);
 
     const fetchPizzaMenu = () => {
-        fetch('http://localhost:8080/api/pizzacreed/pizza/menu')
+        fetch('https://x8c0cgkj-8080.asse.devtunnels.ms/api/pizzacreed/pizza/menu')
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch pizzas');
