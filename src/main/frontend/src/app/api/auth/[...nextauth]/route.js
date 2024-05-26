@@ -10,56 +10,63 @@ const handler = NextAuth({
   pages: {
     signIn: '/login',
   },
-  callbacks: {
-    async jwt({ token, user }) {
+  callbacks:{
+    async jwt({token, user}) {
+      console.log("JWT: " + JSON.stringify(user));
       if (user) {
         token.id = user.id;
         token.name = user.name;
-        token.username = user.username;
+        token.email = user.email;
       }
       return token;
     },
-    async session({ session, token }) {
-      session.user = { id: token.id, name: token.name, username: token.username };
+    async session({session, token}) {
+      session.user = token.user;
+      console.log("SESSION: " ,session);
       return session;
     },
   },
   providers: [
     CredentialsProvider({
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        email: {},
+        password: {},
       },
       async authorize(credentials, req) {
-        console.log("Credentials:", credentials);
-        
-        const response = await query({
-          query: "SELECT * FROM auth WHERE username= ?;",
-          values: [credentials?.username]
-        });
-        
-        console.log("Database response:", response);
 
+        console.log(credentials)
+         const response = await query({
+            query: "SELECT * FROM customer WHERE customer_email= ?;",
+            values: [credentials?.email]
+         })
+         
+         console.log(response)
         const user = response[0];
+        console.log("user pw: " + user.password);
+        console.log("cre pw: " + credentials?.password );
 
         if (!user) {
-          console.log("User not found");
-          return null;
+          return null; // Return null if user not found
         }
 
-        const passwordCorrect = await compare(credentials?.password || '', user.password);
+        const passwordCorrect = await compare(
+          credentials?.password || '', // If credentials?.password is falsy, use ''
+          user.password
+        );
+        
+        
 
-        console.log("Password correct:", passwordCorrect);
+        console.log({ passwordCorrect });
 
         if (passwordCorrect) {
+    
           return {
             id: user.id,
             name: user.name,
-            username: user.username,
+            email: user.email,
           };
         }
 
-        console.log("Invalid credentials");
         return null;
       },
     }),

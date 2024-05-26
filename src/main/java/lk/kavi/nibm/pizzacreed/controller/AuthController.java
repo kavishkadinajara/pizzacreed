@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lk.kavi.nibm.pizzacreed.dto.AuthDTO;
+import lk.kavi.nibm.pizzacreed.dto.CustomerDTO;
 import lk.kavi.nibm.pizzacreed.dto.PizzaDTO; // Assume you have this DTO for Pizza
 import lk.kavi.nibm.pizzacreed.dto.ResponseDTO;
 import lk.kavi.nibm.pizzacreed.service.AuthService;
@@ -18,10 +19,7 @@ import lk.kavi.nibm.pizzacreed.util.VarList;
 public class AuthController {
 
     @Autowired 
-    private AuthService authService;
-
-    @Autowired
-    private PizzaService pizzaService; // Assuming this service exists
+    private AuthService authService;    
 
     @Autowired
     private ResponseDTO responseDTO;
@@ -50,19 +48,44 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/pizza/add")
-    public ResponseEntity<ResponseDTO> addPizza(@RequestBody PizzaDTO pizzaDTO) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @PostMapping("/auth/register")
+    public ResponseEntity registerCustomer(@RequestBody CustomerDTO customerDTO, HttpStatus status) {
         try {
-            pizzaService.addPizza(pizzaDTO);
-            responseDTO.setCode(VarList.RSP_SUCCESS);
-            responseDTO.setMessage("Pizza added successfully");
-            responseDTO.setContent(pizzaDTO);
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+            String res = authService.registerCustomer(customerDTO);
+
+            if(res.equals("00")) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Success");
+                responseDTO.setContent(customerDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
+
+            } else if (res.equals("06")) {
+                responseDTO.setCode(VarList.RSP_DUPLICATED);
+                responseDTO.setMessage("Employee already exists.");
+                responseDTO.setContent(customerDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+
+            } else if(res.equals("10")) {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Empty Feilds");
+                responseDTO.setContent(customerDTO);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+
+            } else {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("error");
+                responseDTO.setContent(null);
+                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+            }
         } catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage(ex.getMessage());
             responseDTO.setContent(null);
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+        
+
+    
 }

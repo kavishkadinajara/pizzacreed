@@ -7,6 +7,7 @@ import Logout from './Logout';
 
 export default async function NavBar() {
   const session = await getServerSession();
+  console.log('session:' + session);
   return (
     <header className="px-4 md:px-5 py-1 text-white shadow-lg">
       <nav className="container mx-auto flex flex-wrap items-center justify-between py-1">
