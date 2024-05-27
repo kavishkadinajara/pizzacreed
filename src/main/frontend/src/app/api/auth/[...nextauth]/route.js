@@ -2,8 +2,10 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
 import { query } from '@/lib/db';
+import { getToken } from "next-auth/jwt"
 
 const handler = NextAuth({
+  
   session: {
     strategy: 'jwt',
   },
@@ -12,7 +14,7 @@ const handler = NextAuth({
   },
   callbacks:{
     async jwt({token, user}) {
-      console.log("JWT: " + JSON.stringify(user));
+      //console.log("JWT: " + JSON.stringify(user));
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -22,7 +24,7 @@ const handler = NextAuth({
     },
     async session({session, token}) {
       session.user = token.user;
-      console.log("SESSION: " ,session);
+      //console.log("SESSION: " ,session);
       return session;
     },
   },
@@ -42,19 +44,15 @@ const handler = NextAuth({
          
          console.log(response)
         const user = response[0];
-        console.log("user pw: " + user.password);
-        console.log("cre pw: " + credentials?.password );
 
         if (!user) {
           return null; // Return null if user not found
         }
 
         const passwordCorrect = await compare(
-          credentials?.password || '', // If credentials?.password is falsy, use ''
+          credentials?.password || '',
           user.password
         );
-        
-        
 
         console.log({ passwordCorrect });
 

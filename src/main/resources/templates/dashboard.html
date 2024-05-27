@@ -2,49 +2,142 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard | PizzaCreed</title>
+    <title>Admin Dashboard | Pizza Creed</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lemon&display=swap" rel="stylesheet">
-
-    <style>
-        .fnt-lemon {
-            font-family: 'Lemon', cursive;
-        }
-    </style>
 </head>
-<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black">
-<div class="container mx-auto mt-5 p-5">
-    <div class="flex justify-end gap-3 items-center">
-        <a class="btn bg-red-600 hover:bg-red-700 text-white" th:href="@{/login}">Logout</a>
-        <p th:if="${username}" class="text-blue-600">Logged in as <span class="font-bold" th:text="${username}"></span></p>
-    </div>
+<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black text-white">
 
-    <h1 class="text-center text-blue-600 text-4xl fnt-lemon mt-5">Welcome to Pizza-Creed 🍕🍕</h1>
-
-    <!-- Navigation links -->
-    <nav class="bg-white shadow-md rounded mt-5 p-4">
-        <ul class="flex space-x-4 justify-center">
+<header class="px-5 py-1 text-white shadow-lg">
+    <nav class="container mx-auto flex flex-col items-center justify-between py-1 md:flex-row">
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2 mb-4 md:mb-0">
+            <div>
+                <img src="/img/logo-3.png" width="72" height="75" alt="Logo">
+            </div>
+            <div class="text-3xl font-bold mt-4 text-orange-800">
+                <span class="text-orange-600">Pizza</span>-<span class="text-orange-500">Creed</span>
+            </div>
+        </a>
+    
+        <!-- Navigation Links -->
+        <ul class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 text-orange-300">
             <li>
-                <a class="text-blue-600 hover:text-blue-800" href="/addPizza">Add Pizza</a>
+                <a href="/" class="hover:text-orange-500">Home</a>
             </li>
             <li>
-                <a class="text-blue-600 hover:text-blue-800" href="/menu">Menu</a>
+                <a href="/addpizza" class="hover:text-orange-500">Add Pizza</a>
             </li>
         </ul>
+    
+        <!-- Login/Logout button -->
+        <div>
+            <div class="flex gap-4">
+                <a href="/adminlogin" class="text-xl text-orange-500 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
+            </div>
+        </div>
     </nav>
+</header>
 
-    <!-- Display pizza count -->
-    <div class="mt-5">
-        <p class="bg-blue-100 text-blue-600 font-mono p-3 text-center rounded">Total Pizzas: <span class="font-bold px-2 bg-green-100 text-green-600 rounded" th:text="${pizzaCount}">0</span></p>
-    </div>
-
-    <div class="mt-5">
-        <!-- Display the banner image -->
-        <img src="/images/pizza-banner.jpg" alt="Pizza Banner" class="w-full h-64 object-cover rounded mx-auto">
+<div class="container mx-auto mt-5 p-5">
+    <h1 class="text-center text-4xl font-bold text-orange-400 mb-6">Pizza-Creed Admin Dashboard</h1>
+    <!-- Content container for pizza list -->
+    <div id="pizzaListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Pizza list items will be dynamically added here -->
     </div>
 </div>
+
+<script>
+    // // Function to retrieve the session username
+    function getSessionUsername() {
+        return sessionStorage.getItem('username');
+    }
+
+    // Function to redirect to the login page if session username is null
+    function redirectToLogin() {
+        window.location.href = '/adminlogin'; // Redirect to the login page
+    }
+
+    // Check if session username is null and redirect to login if needed
+    if (!getSessionUsername()) {
+        redirectToLogin();
+    }
+
+    // Function to fetch and display pizza data
+    function fetchPizzaData() {
+        fetch('/api/pizzacreed/pizza/menu1', {
+            headers: {
+                'API-KEY-USERNAME': "pizza-gallefort-9911", // Set API key username from session
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Process the response and populate the pizza list container
+            const pizzaListContainer = document.getElementById('pizzaListContainer');
+            if (data.code === '00') {
+                data.content.forEach(pizza => {
+                    const pizzaCard = document.createElement('div');
+                    pizzaCard.className = 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black shadow-lg rounded-lg mb-4 p-5 transition-transform transform hover:scale-105';
+
+                    pizzaCard.innerHTML = `
+                        <div class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black rounded-lg shadow-md flex flex-col justify-center items-center mb-6">
+                            <img src="/img/${pizza.pizzaImg}" alt="${pizza.pizzaName}" class="w-full h-42 rounded-t-lg object-cover">
+                            <div class="pt-4 text-center">
+                                <h3 class="text-xl text-orange-200 font-semibold mb-2">${pizza.pizzaName}</h3>
+                                <h3 class="text-sm text-orange-100 font-thin text-justify mb-2 mx-6">${pizza.pizzaDiscription}</h3>
+                                <div class="flex justify-center space-x-3 mt-4">
+                                    <a href="/edit/${pizza.pizzaId}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Edit</a>
+                                    <button onclick="deletePizza(${pizza.pizzaId})" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    pizzaListContainer.appendChild(pizzaCard);
+                });
+            } else {
+                console.error('Failed to fetch pizza data:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching pizza data:', error);
+        });
+    }
+
+    // Function to handle pizza deletion
+    function deletePizza(pizzaId) {
+        // Confirm deletion
+        if (confirm('Are you sure you want to delete this pizza?')) {
+            // Make a DELETE request to delete the pizza
+            fetch(`/api/pizzacreed/pizza/deletePizza/${pizzaId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-KEY-USERNAME': getSessionUsername(), // Set API key username from session
+                    'API-KEY-PASSWORD': '1919gallepizzafort'  // Replace with your API key password
+                }
+            })
+            //alert(getSessionUsername())
+            .then(response => response.json())
+            .then(data => {
+                // Check if deletion was successful
+                if (data.code === '00') {
+                    // Reload the page or update the pizza list
+                    location.reload();
+                } else {
+                    console.error('Failed to delete pizza:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting pizza:', error);
+            });
+        }
+    }
+
+    // Fetch pizza data on page load
+    fetchPizzaData();
+</script>
+
 </body>
 </html>

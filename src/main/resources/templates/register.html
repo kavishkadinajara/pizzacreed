@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Pizza Creed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[url('/img/p11.jpg')] bg-cover">
+  <div class='bg-[#000000bd] min-h-screen flex items-center justify-center'>
+    <div class="relative flex justify-center py-8">
+      <div style="min-width: 40%;">
+        <div class="flex shadow-lg flex-1 flex-col rounded-3xl justify-center px-6 py-12 lg:px-8 bg-black">
+          <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+            <a href="/">
+              <h1 class="text-3xl font-bold text-center text-gray-700">
+                <span class="text-orange-400">Pizza</span>-<span class="text-orange-200">Creed</span>
+              </h1>
+            </a>
+            <h2 class="mt-1 text-center text-2xl font-bold leading-9 tracking-tight text-gray-400">
+              Create a new account
+            </h2>
+          </div>
+
+          <div class="mt-10 sm:mx-auto sm:w-full ">
+            <form id="registerForm" class="space-y-6">
+              <div>
+                <label for="customerName" class="block text-md font-medium leading-6 text-gray-600">Name</label>
+                <div class="mt-2">
+                  <input id="customerName" name="customerName" type="text" autoComplete="name" required class="block w-full rounded-md border-0 py-1.5 px-2 text-black shadow-sm ring-1 ring-inset ring-orange-400 placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <label for="customerAddress" class="block text-md font-medium leading-6 text-gray-600">Address</label>
+                <div class="mt-2">
+                  <input id="customerAddress" name="customerAddress" type="text" autoComplete="address" required class="block w-full rounded-md border-0 py-1.5 px-2 text-black shadow-sm ring-1 ring-inset ring-orange-400 placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <label for="customerEmail" class="block text-md font-medium leading-6 text-gray-600">Email address</label>
+                <div class="mt-2">
+                  <input id="customerEmail" name="customerEmail" type="email" autoComplete="customerEmail" required class="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-orange-400 px-2 placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <label for="customerTele" class="block text-md font-medium leading-6 text-gray-600">Telephone</label>
+                <div class="mt-2">
+                  <input id="customerTele" name="customerTele" type="tel" autoComplete="customerTele" required class="block w-full rounded-md border-0 py-1.5 px-2 text-black shadow-sm ring-1 ring-inset ring-orange-400 placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between">
+                  <label for="password" class="block text-md font-medium leading-6 text-gray-600">Password</label>
+                </div>
+                <div class="mt-2">
+                  <input id="password" name="password" type="password" autoComplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-orange-400 placeholder:text-black px-2 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between">
+                  <label for="confirmpassword" class="block text-md font-medium leading-6 text-gray-600">Confirm Password</label>
+                </div>
+                <div class="mt-2">
+                  <input id="confirmpassword" name="confirmpassword" type="password" autoComplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-orange-400 placeholder:text-black px-2 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <p id="errorMessage" class="text-red-600 text-sm"></p>
+              <div>
+                <button type="submit" class="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                  Sign Up
+                </button>
+              </div>
+            </form>
+
+            <p class="mt-10 text-center text-sm text-gray-500">
+              Already have an account? <a href="/login" class="font-semibold leading-6 text-orange-600 hover:text-orange-500">Sign In</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmpassword').value;
+      const errorMessageElement = document.getElementById('errorMessage');
+
+      if (password !== confirmPassword) {
+        errorMessageElement.textContent = "Passwords do not match";
+        document.getElementById('password').value = '';
+        document.getElementById('confirmpassword').value = '';
+        return;
+      }
+
+      errorMessageElement.textContent = "";
+      const formData = new FormData(event.target);
+      const data = {
+        customerName: formData.get('customerName'),
+        customerAddress: formData.get('customerAddress'),
+        customerTele: formData.get('customerTele'),
+        customerEmail: formData.get('customerEmail'),
+        password: formData.get('password')
+      };
+
+      try {
+        const response = await fetch('/api/pizzacreed/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create account');
+        }
+
+        alert('Signed up successfully!');
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Error occurred:', error);
+        errorMessageElement.textContent = error.message || 'An unexpected error occurred';
+      }
+    });
+  </script>
+</body>
+</html>

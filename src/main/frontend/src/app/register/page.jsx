@@ -21,19 +21,19 @@ export default function RegisterPage() {
 
   const createAccount = async (event) => {
     event.preventDefault();
-
+  
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match");
-      setPassword(''); // Clear password field
-      setConfirmPassword(''); // Clear confirm password field
+      setPassword('');
+      setConfirmPassword('');
       return;
     }
-
+  
     setErrorMessage("");
     const formData = new FormData(event.target);
-
+  
     try {
-      const response = await fetch('https://x8c0cgkj-8080.asse.devtunnels.ms/api/pizzacreed/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           customerName: formData.get('customerName'),
@@ -41,31 +41,26 @@ export default function RegisterPage() {
           customerTele: formData.get('customerTele'),
           customerEmail: formData.get('customerEmail'),
           password: formData.get('password'),
-
         }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
-      const responseData = await response.json();
-
+  
       if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to create account');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create account');
       }
-
-      if (responseData.code === '00' && responseData.message === 'Success') {
-        router.push('/login');
-        toast.success('Signed up successfully!');
-      } else {
-        throw new Error(responseData.message || 'Unknown error occurred');
-      }
+  
+      toast.success('Signed up successfully!');
+      router.push('/login');
     } catch (error) {
       console.error('Error occurred:', error);
       toast.error(error.message || 'An unexpected error occurred');
       setErrorMessage(error.message || 'An unexpected error occurred');
     }
   };
+  
 
   return (
     <main className="bg-[url('/img/p11.jpg')] bg-cover">

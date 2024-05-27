@@ -65,13 +65,13 @@ public class BasketItemController {
 
     // REMOVE PIZZA FROM BASKET
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @DeleteMapping("/{shoppingbasketid}/pizza/{pizzaid}")
+    @DeleteMapping("/{customerId}/pizza/{pizzaid}")
     public ResponseEntity deleteItemInBasket(
-        @PathVariable("shoppingbasketid") int shoppingBasketId, 
+        @PathVariable("customerId") int customerId, 
         @PathVariable("pizzaid") int pizzaId
     ) {
         try {
-            String res = basketItemService.deleteItemInBasket(shoppingBasketId, pizzaId);
+            String res = basketItemService.deleteItemInBasket(customerId, pizzaId);
 
             if (VarList.RSP_NO_DATA_FOUND.equals(res)) {
                 responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);

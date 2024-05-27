@@ -24,10 +24,11 @@ public class AuthController {
     @Autowired
     private ResponseDTO responseDTO;
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<ResponseDTO> login(@RequestBody AuthDTO authDTO) {
+    // ADMIN LOGIN
+    @PostMapping("/auth/adminlogin")
+    public ResponseEntity<ResponseDTO> adminLogin(@RequestBody AuthDTO authDTO) {
         try {
-            String res = authService.login(authDTO);
+            String res = authService.adminLogin(authDTO);
 
             if (VarList.RSP_SUCCESS.equals(res)) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
@@ -48,6 +49,32 @@ public class AuthController {
         }
     }
 
+    // CUSTOMER LOGIN
+    @PostMapping("/auth/login")
+    public ResponseEntity<ResponseDTO> customerLogin(@RequestBody CustomerDTO customerDTO) {
+        try {
+            String res = authService.customerLogin(customerDTO);
+
+            if (VarList.RSP_SUCCESS.equals(res)) {
+                responseDTO.setCode(VarList.RSP_SUCCESS);
+                responseDTO.setMessage("Login successful");
+                responseDTO.setContent(customerDTO);
+                return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
+            } else {
+                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setMessage("Invalid credentials");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception ex) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // REGISTER CUSTOMER
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping("/auth/register")
     public ResponseEntity registerCustomer(@RequestBody CustomerDTO customerDTO, HttpStatus status) {
@@ -85,7 +112,4 @@ public class AuthController {
             return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-        
-
-    
 }

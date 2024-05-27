@@ -11,5 +11,6 @@ public class BasketItemDTO {
     private int basketPizzaId;
     private int pizzaSizeId;
     private int pizzaId;
-    private int shoppingBasketId;
+    private int customerId;
+    private String crust;
 }

@@ -8,14 +8,36 @@ import lk.kavi.nibm.pizzacreed.entity.Pizza;
 
 @Controller
 public class HomeController {
+
     @GetMapping("/")
     public String index() {
         return "index"; 
     }
 
+    @GetMapping("/register")
+    public String register() {
+        return "register"; 
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login"; 
+    }
+
+    @GetMapping("/menu")
+    public String menu() {
+        return "menu"; 
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard"; 
+    }
+
+
+    @GetMapping("/adminlogin")
+    public String adminlogin() {
+        return "adminlogin"; 
     }
 
     @GetMapping("/edit/{pizzaId}")

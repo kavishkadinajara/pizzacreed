@@ -32,9 +32,7 @@ public class BasketItemService {
             BasketItem basketItem = modelMapper.map(basketItemDTO, BasketItem.class);
             basketItemRepo.save(basketItem);
             return VarList.RSP_SUCCESS;
-        } catch (DataIntegrityViolationException e) {
-            // This exception indicates a duplicate entry or constraint violation
-            return VarList.RSP_DUPLICATED;
+        
         } catch (Exception e) {
             e.printStackTrace();
             return VarList.RSP_ERROR;
@@ -42,9 +40,9 @@ public class BasketItemService {
     }
 
     // DELETE ITEM IN BASKET
-    public String deleteItemInBasket(int shoppingBasketId, int pizzaId) {
+    public String deleteItemInBasket(int customerId, int pizzaId) {
         try {
-            BasketItem basketItem = basketItemRepo.findByShoppingBasketIdAndPizzaId(shoppingBasketId, pizzaId).orElse(null);
+            BasketItem basketItem = basketItemRepo.findByCustomerIdAndPizzaId(customerId, pizzaId).orElse(null);
             if (basketItem == null) {
                 return VarList.RSP_NO_DATA_FOUND;
             }

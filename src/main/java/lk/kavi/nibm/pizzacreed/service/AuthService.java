@@ -34,7 +34,8 @@ public class AuthService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public String login(AuthDTO authDTO) {
+    // ADMIN LOGIN
+    public String adminLogin(AuthDTO authDTO) {
         try {
             if (authDTO.getUsername() == null || authDTO.getPassword() == null) {
                 return VarList.RSP_FAIL;
@@ -60,6 +61,35 @@ public class AuthService {
         }
     }
 
+    // CUSTOMER LOGIN
+    public String customerLogin(CustomerDTO customerDTO) {
+        try {
+            if (customerDTO.getCustomerEmail() == null || customerDTO.getPassword() == null) {
+                return VarList.RSP_FAIL;
+            }
+
+            Customer customer = customerRepo.findByCustomerEmail(customerDTO.getCustomerEmail());
+            if (customer != null && customer.getPassword().equals(customerDTO.getPassword())) {
+                ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+                HttpServletRequest request = attr.getRequest();
+                HttpSession session = request.getSession(true);
+
+                session.setAttribute("username", customer.getCustomerEmail());
+                session.setAttribute("userId", customer.getCustomerId());
+
+                customerDTO.setCustomerId(customer.getCustomerId());
+
+                return VarList.RSP_SUCCESS;
+            } else {
+                return VarList.RSP_FAIL;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error during login", e);
+        }
+    }
+
+
+    // REGISTER CUSTOMER
     public String registerCustomer(CustomerDTO customerDTO) {
         try {
             // Check if any required fields are null

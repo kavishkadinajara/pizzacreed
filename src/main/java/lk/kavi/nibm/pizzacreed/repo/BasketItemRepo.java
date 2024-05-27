@@ -5,5 +5,5 @@ import java.util.Optional;
 import lk.kavi.nibm.pizzacreed.entity.BasketItem;
 
 public interface BasketItemRepo extends JpaRepository<BasketItem, Integer> {
-    Optional<BasketItem> findByShoppingBasketIdAndPizzaId(int shoppingBasketId, int pizzaId);
+    Optional<BasketItem> findByCustomerIdAndPizzaId(int customerId, int pizzaId);
 }
