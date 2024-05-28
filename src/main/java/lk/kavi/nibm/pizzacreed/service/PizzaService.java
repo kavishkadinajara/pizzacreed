@@ -122,7 +122,7 @@ public class PizzaService {
 
 
     // GET ALL PIZZAS FROM TABLE
-    public List<PizzaDTO> getAllEmployees() {
+    public List<PizzaDTO> getAllPizza1() {
         List<Pizza> employeeList = pizzaRepo.findAll();
         return modelMapper.map(employeeList, new TypeToken<ArrayList<PizzaDTO>>() {}.getType());
     }

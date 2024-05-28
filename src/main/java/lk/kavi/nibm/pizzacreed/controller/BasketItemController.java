@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,8 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import lk.kavi.nibm.pizzacreed.dto.BasketItemDTO;
 import lk.kavi.nibm.pizzacreed.dto.ResponseDTO;
+import lk.kavi.nibm.pizzacreed.dto.BasketDTO;
 import lk.kavi.nibm.pizzacreed.service.BasketItemService;
 import lk.kavi.nibm.pizzacreed.util.VarList;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -28,48 +32,40 @@ public class BasketItemController {
     private BasketItemService basketItemService;
 
     // ADD PIZZA TO BASKET
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @PostMapping("/addpizza")
-    public ResponseEntity addPizzaToBasket(@RequestBody BasketItemDTO basketItemDTO) {
+    public ResponseEntity<ResponseDTO> addPizzaToBasket(@RequestBody BasketItemDTO basketItemDTO) {
         try {
             String res = basketItemService.addPizzaToBasket(basketItemDTO);
 
-            if(res.equals(VarList.RSP_SUCCESS)) {
+            if (VarList.RSP_SUCCESS.equals(res)) {
                 responseDTO.setCode(VarList.RSP_SUCCESS);
                 responseDTO.setMessage("Successfully added");
                 responseDTO.setContent(basketItemDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.ACCEPTED);
-            } else if(res.equals(VarList.RSP_DUPLICATED)) {
+                return new ResponseEntity<>(responseDTO, HttpStatus.ACCEPTED);
+            } else if (VarList.RSP_DUPLICATED.equals(res)) {
                 responseDTO.setCode(VarList.RSP_DUPLICATED);
                 responseDTO.setMessage("Pizza already exists.");
                 responseDTO.setContent(basketItemDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
-            } else if(res.equals(VarList.RSP_FAIL)) {
-                responseDTO.setCode(VarList.RSP_FAIL);
-                responseDTO.setMessage("Empty Fields");
-                responseDTO.setContent(basketItemDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             } else {
-                responseDTO.setCode(VarList.RSP_FAIL);
+                responseDTO.setCode(VarList.RSP_ERROR);
                 responseDTO.setMessage("Error");
                 responseDTO.setContent(basketItemDTO);
-                return new ResponseEntity(responseDTO, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage(ex.getMessage());
             responseDTO.setContent(null);
-            return new ResponseEntity(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // REMOVE PIZZA FROM BASKET
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @DeleteMapping("/{customerId}/pizza/{pizzaid}")
-    public ResponseEntity deleteItemInBasket(
-        @PathVariable("customerId") int customerId, 
-        @PathVariable("pizzaid") int pizzaId
-    ) {
+    @DeleteMapping("/{customerId}/pizza/{pizzaId}")
+    public ResponseEntity<ResponseDTO> deleteItemInBasket(
+            @PathVariable("customerId") int customerId, 
+            @PathVariable("pizzaId") int pizzaId) {
         try {
             String res = basketItemService.deleteItemInBasket(customerId, pizzaId);
 
@@ -92,6 +88,29 @@ public class BasketItemController {
         } catch (Exception ex) {
             responseDTO.setCode(VarList.RSP_ERROR);
             responseDTO.setMessage(ex.getMessage());
+            responseDTO.setContent(null);
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity<ResponseDTO> getBasketPizzasByCustomerId(@PathVariable("customerId") int customerId) {
+        try {
+            List<BasketDTO> basketDTOList = basketItemService.getBasketPizzasByCustomerId(customerId);
+            if (basketDTOList.isEmpty()) {
+                responseDTO.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDTO.setMessage("No pizza found in your order");
+                responseDTO.setContent(null);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            } 
+
+            responseDTO.setCode(VarList.RSP_SUCCESS);
+            responseDTO.setMessage("Success");
+            responseDTO.setContent(basketDTOList);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            responseDTO.setCode(VarList.RSP_ERROR);
+            responseDTO.setMessage("Error: " + e.getMessage());
             responseDTO.setContent(null);
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }

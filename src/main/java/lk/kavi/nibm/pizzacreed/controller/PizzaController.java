@@ -100,7 +100,7 @@ public class PizzaController {
     @GetMapping("/menu1")
     public ResponseEntity findPizza() {
         try {
-            List<PizzaDTO> pizzaDTOList = pizzaService.getAllEmployees();
+            List<PizzaDTO> pizzaDTOList = pizzaService.getAllPizza1();
             responseDTO.setCode(VarList.RSP_SUCCESS);
             responseDTO.setMessage("Success");
             responseDTO.setContent(pizzaDTOList);

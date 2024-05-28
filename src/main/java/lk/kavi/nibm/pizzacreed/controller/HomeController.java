@@ -40,6 +40,11 @@ public class HomeController {
         return "adminlogin"; 
     }
 
+    @GetMapping("/basket")
+    public String basket() {
+        return "basket"; 
+    }
+
     @GetMapping("/edit/{pizzaId}")
     public String edit(@PathVariable int pizzaId) {
         

@@ -1,46 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pizza Listing - Pizza Creed</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black">
+
+<body
+  class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black">
+  <div class='bg-[#2c160ab5]'>
+    <!-- NavBar -->
     <header class="px-4 md:px-5 py-1 text-white shadow-lg">
-        <nav class="container mx-auto flex flex-wrap items-center justify-between py-1">
-          <!-- Logo -->
-          <a href="/" class="flex items-center space-x-2">
-            <div>
-              <img src="/img/logo-3.png" width="72" height="75" alt="Logo">
-            </div>
-            <div class="text-3xl font-bold mt-4 text-orange-800">
-              <span class="text-orange-600">Pizza</span>-<span class="text-orange-500">Creed</span>
-            </div>
-          </a>
-      
-          <!-- Navigation Links -->
-          <ul class="flex flex-wrap justify-center md:justify-start items-center space-x-8 md:space-x-12 text-orange-300 mt-4 md:mt-0">
-            <li>
-              <a href="/" class="hover:text-orange-500">Home</a>
-            </li>
-            <li>
-              <a href="/menu" class="hover:text-orange-500">Menu</a>
-            </li>
-            <li>
-              <a href="/#service-area" class="hover:text-orange-500">Services</a>
-            </li>
-            <li>
-              <a href="/#reviewSection" class="hover:text-orange-500">Contact Us</a>
-            </li>
-          </ul>
-          
-          <!-- Login/Logout button -->
-          <div id="auth-section" class="flex flex-wrap justify-center md:justify-start mt-4 md:mt-0">   
-            <!-- JavaScript will dynamically inject content here based on session state -->
+      <nav class="container mx-auto flex flex-wrap items-center justify-between py-1">
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2">
+          <div>
+            <img src="/img/logo-3.png" width="72" height="75" alt="Logo">
           </div>
-        </nav>
+          <div class="text-3xl font-bold mt-4 text-orange-800">
+            <span class="text-orange-600">Pizza</span>-<span class="text-orange-500">Creed</span>
+          </div>
+        </a>
+
+        <!-- Navigation Links -->
+        <ul
+          class="flex flex-wrap justify-center md:justify-start items-center space-x-8 md:space-x-12 text-orange-300 mt-4 md:mt-0">
+          <li>
+            <a href="/" class="hover:text-orange-500">Home</a>
+          </li>
+          <li>
+            <a href="/menu" class="hover:text-orange-500">Menu</a>
+          </li>
+          <li>
+            <a href="/#service-area" class="hover:text-orange-500">Services</a>
+          </li>
+          <li>
+            <a href="/#reviewSection" class="hover:text-orange-500">Contact Us</a>
+          </li>
+        </ul>
+
+        <!-- Login/Logout button -->
+        <div id="auth-section" class="flex flex-wrap justify-center md:justify-start mt-4 md:mt-0">
+          <!-- JavaScript will dynamically inject content here based on session state -->
+        </div>
+      </nav>
     </header>
+  </div>
 
   <div id="app">
     <div class="container py-12 px-8">
@@ -50,42 +57,29 @@
 
   <div>
     <footer class="mx-4 md:mx-20 py-8">
-        <hr class='mb-5' />
-        <div class="container mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <a href="/">
-                    <div class="flex flex-col items-center md:items-start">
-                        <h1 class="text-3xl font-bold text-gray-700">
-                            <span class="text-orange-400">Pizza</span>-<span class="text-orange-200">Creed</span>
-                        </h1>
-                        <p class='text-md text-yellow-100'>Made with ❤️ by Kavishka Dinajara</p>
-                    </div>
-                </a>
-                <div class="text-white mb-4 md:mb-0">Copyright © 2024 | Pizza-Creed. All Rights reserved.</div>
+      <hr class='mb-5' />
+      <div class="container mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <a href="/">
+            <div class="flex flex-col items-center md:items-start">
+              <h1 class="text-3xl font-bold text-gray-700">
+                <span class="text-orange-400">Pizza</span>-<span class="text-orange-200">Creed</span>
+              </h1>
+              <p class='text-md text-yellow-100'>Made with ❤️ by Kavishka Dinajara</p>
             </div>
+          </a>
+          <div class="text-white mb-4 md:mb-0">Copyright © 2024 | Pizza-Creed. All Rights reserved.</div>
         </div>
+      </div>
     </footer>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const pizzaGrid = document.getElementById('pizzaGrid');
       const apiUrl = '/api/pizzacreed/pizza/menu';
       const addPizzaApiUrl = '/api/pizzacreed/basketitem/addpizza';
       let selectedOptions = {};
-
-      const getCustomerIdFromSession = () => {
-          return sessionStorage.getItem('customerId');
-      };
-
-      function redirectToLogin() {
-          window.location.href = '/login'; // Redirect to the login page
-      }
-     
-
-      if (!getCustomerIdFromSession()) {
-          redirectToLogin();
-      }
 
 
       const fetchPizzaMenu = async () => {
@@ -97,7 +91,8 @@
           if (data.content) {
             renderPizzas(data.content);
           } else {
-            pizzaGrid.innerHTML = `<p class="text-red-600">Failed to load pizzas: ${data.message || "Unknown Error!!!"}</p>`;
+            pizzaGrid.innerHTML =
+              `<p class="text-red-600">Failed to load pizzas: ${data.message || "Unknown Error!!!"}</p>`;
           }
         } catch (err) {
           pizzaGrid.innerHTML = `<p class="text-red-600">Error: ${err.message}</p>`;
@@ -112,9 +107,9 @@
       };
 
       const getSelectedPrice = (pizzaId, pizzas) => {
-        const selectedSizeId = selectedOptions[pizzaId]?.size;
+        const selectedSizeId = selectedOptions[pizzaId] ?.size;
         const selectedPizza = pizzas.find(pizza => pizza.pizzaId === pizzaId);
-        const selectedSize = selectedPizza?.sizes.find(size => size.sizeId.toString() === selectedSizeId);
+        const selectedSize = selectedPizza ?.sizes.find(size => size.sizeId.toString() === selectedSizeId);
         return selectedSize ? selectedSize.price : null;
       };
 
@@ -122,7 +117,8 @@
         pizzaGrid.innerHTML = '';
         pizzas.forEach(pizza => {
           const pizzaCard = document.createElement('div');
-          pizzaCard.className = 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black rounded-lg shadow-md overflow-hidden';
+          pizzaCard.className =
+            'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#000315] via-[#150600] to-black rounded-lg shadow-md overflow-hidden';
 
           pizzaCard.innerHTML = `
             <img src="img/${pizza.pizzaImg}" alt="${pizza.pizzaName}" class="w-full h-42 rounded-t-lg object-cover" />
@@ -153,8 +149,21 @@
       };
 
       window.addToBasket = async (pizzaId) => {
-        const crust = selectedOptions[pizzaId]?.crust;
-        const size = selectedOptions[pizzaId]?.size;
+        const crust = selectedOptions[pizzaId] ?.crust;
+        const size = selectedOptions[pizzaId] ?.size;
+
+        const getCustomerIdFromSession = () => {
+          return sessionStorage.getItem('customerId');
+        };
+
+        function redirectToLogin() {
+          window.location.href = '/login'; // Redirect to the login page
+        }
+
+
+        if (!getCustomerIdFromSession()) {
+          redirectToLogin();
+        }
 
         if (!crust || !size) {
           alert("Please select both crust and size");
@@ -192,6 +201,47 @@
 
       fetchPizzaMenu();
     });
+
+    // Function to get customer ID from session storage
+    const getCustomerIdFromSession = () => {
+      return sessionStorage.getItem('customerId');
+    };
+
+    // Reference to the auth section
+    const authSection = document.getElementById('auth-section');
+
+    // Function to render the authentication section
+    const renderAuthSection = () => {
+      const customerId = getCustomerIdFromSession();
+      if (customerId) {
+        authSection.innerHTML = `
+                  <div class="flex gap-3">
+                      
+                      <a href="/basket">
+                          <img src="/img/shopping-cart.svg" alt="Cart" class="icon mt-3 w-7 h-7">
+                      </a>
+                      <button id="logout-button" class="bg-orange-500 py-2 px-6 rounded-lg mr-4 hover:bg-orange-600 shadow-lg hover:shadow-orange-500">Logout</button>
+                  </div>
+              `;
+        document.getElementById('logout-button').addEventListener('click', handleLogout);
+      } else {
+        authSection.innerHTML = `
+                  <div class="flex gap-4">
+                      <a href="/login" class="text-xl text-orange-500 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
+                  </div>
+              `;
+      }
+    };
+
+    // Function to handle logout
+    const handleLogout = () => {
+      sessionStorage.removeItem('customerId');
+      renderAuthSection();
+    };
+
+    // Render the authentication section on page load
+    renderAuthSection();
   </script>
 </body>
+
 </html>

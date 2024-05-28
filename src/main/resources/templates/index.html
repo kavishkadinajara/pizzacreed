@@ -131,42 +131,46 @@
     
     <!-- JavaScript to simulate session state -->
     <script>
-        // Simulate session state (true for logged in, false for logged out)
-        let session = true; // Change to false to simulate logged out state
-
-        const authSection = document.getElementById('auth-section');
-
-        const renderAuthSection = () => {
-            if (session) {
-                authSection.innerHTML = `
+      // Function to get customer ID from session storage
+      const getCustomerIdFromSession = () => {
+          return sessionStorage.getItem('customerId');
+      };
+  
+      // Reference to the auth section
+      const authSection = document.getElementById('auth-section');
+  
+      // Function to render the authentication section
+      const renderAuthSection = () => {
+          const customerId = getCustomerIdFromSession();
+          if (customerId) {
+              authSection.innerHTML = `
                   <div class="flex gap-3">
-                    <a href="/account" class="hover:underline-offset-2 hover:underline my-auto">
-                      <span class="my-auto">
-                        <img src="/img/user-circle.svg" alt="Account" class="icon">
-                      </span>
-                    </a> 
-                    <a href="/product">
-                      <img src="/img/shopping-cart.svg" alt="Cart" class="icon">
-                    </a>
-                    <button id="logout-button" class="bg-orange-500 py-2 px-6 rounded-lg mr-4 hover:bg-orange-600 shadow-lg hover:shadow-orange-500">Logout</button>
+                      
+                      <a href="/basket">
+                          <img src="/img/shopping-cart.svg" alt="Cart" class="icon mt-3 w-7 h-7">
+                      </a>
+                      <button id="logout-button" class="bg-orange-500 py-2 px-6 rounded-lg mr-4 hover:bg-orange-600 shadow-lg hover:shadow-orange-500">Logout</button>
                   </div>
-                `;
-                document.getElementById('logout-button').addEventListener('click', handleLogout);
-            } else {
-                authSection.innerHTML = `
+              `;
+              document.getElementById('logout-button').addEventListener('click', handleLogout);
+          } else {
+              authSection.innerHTML = `
                   <div class="flex gap-4">
-                    <a href="/login" class="text-xl text-orange-500 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
+                      <a href="/login" class="text-xl text-orange-500 mr-5 focus:text-orange-500 hover:font-semibold shadow-lg">Login</a>
                   </div>
-                `;
-            }
-        };
-
-        const handleLogout = () => {
-            session = false;
-            renderAuthSection();
-        };
-
-        renderAuthSection();
-    </script>
+              `;
+          }
+      };
+  
+      // Function to handle logout
+      const handleLogout = () => {
+          sessionStorage.removeItem('customerId');
+          renderAuthSection();
+      };
+  
+      // Render the authentication section on page load
+      renderAuthSection();
+  </script>
+  
 </body>
 </html>
